@@ -1,0 +1,13 @@
+{
+  "name": "Obsidian plugins E2E",
+  "install": "bash .cursor/cloud-bootstrap.sh install",
+  "start": "bash .cursor/cloud-bootstrap.sh start",
+  "repositoryDependencies": [
+    "github.com/adrianghnguyen/obsidian-plugin-development",
+    "github.com/adrianghnguyen/obsidian-agent-client",
+    "github.com/adrianghnguyen/obsidian-seek",
+    "github.com/adrianghnguyen/whisper-obsidian-plugin",
+    "github.com/adrianghnguyen/obsidian-book-search-plugin",
+    "github.com/adrianghnguyen/note-refactor-obsidian"
+  ]
+}
