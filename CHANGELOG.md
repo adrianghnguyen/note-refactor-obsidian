@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 
+## 1.9.0-beta.1
+
 ### Added
 
-- Optional setting to force new note file titles to lowercase when creating a note.
+- Settings toggle **Lowercase new note titles**. When on, newly created note file names are forced to lowercase. Note content is unchanged. Off by default.
 
 ### Fixed
 
