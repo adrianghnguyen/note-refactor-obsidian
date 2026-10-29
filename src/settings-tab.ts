@@ -70,6 +70,15 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName('Lowercase new note titles')
+      .setDesc('When creating a new note, force the file name to lowercase. Note content is unchanged.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.lowercaseNewNoteTitle)
+        .onChange((value) => {
+          this.plugin.settings.lowercaseNewNoteTitle = value;
+          this.plugin.saveData(this.plugin.settings);
+        }));
+
+    new Setting(containerEl)
       .setName('Transclude by default')
       .setDesc('When content has been extracted/split into a new note, include a transclusion of the new note')
       .addToggle(toggle => toggle.setValue(this.plugin.settings.transcludeByDefault)

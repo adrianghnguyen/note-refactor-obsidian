@@ -8,6 +8,7 @@ export class NoteRefactorSettings {
     newFileLocation: Location = Location.VaultFolder;
     customFolder: string = '';
     fileNamePrefix: string = '';
+    lowercaseNewNoteTitle: boolean = false;
     transcludeByDefault: boolean = false;
     noteLinkTemplate: string = '';
     refactoredNoteTemplate: string = '';

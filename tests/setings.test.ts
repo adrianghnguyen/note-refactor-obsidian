@@ -23,4 +23,8 @@ describe("Note Refactor Settings defaults", () => {
     it("Heading format", () => {
         expect(settings.headingFormat).toBe('#');
     });
+
+    it("Lowercase new note titles is off by default", () => {
+        expect(settings.lowercaseNewNoteTitle).toBeFalsy();
+    });
 });
