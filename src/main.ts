@@ -102,7 +102,7 @@ export default class NoteRefactor extends Plugin {
       name: 'Extract heading',
       checkCallback: (checking: boolean) => {
         const mdView = this.app.workspace.activeLeaf?.view as MarkdownView;
-        if (!mdView || mdView.getMode() !== 'source') {
+        if (!this.isSourceMarkdown(mdView)) {
           return false;
         }
         const lines = mdView.editor.getValue().split('\n');
@@ -118,7 +118,7 @@ export default class NoteRefactor extends Plugin {
     });
 
     this.registerEvent(this.app.workspace.on('editor-menu', (menu: Menu, editor: Editor, view: MarkdownView) => {
-      if (!view || view.getMode() !== 'source') {
+      if (!this.isSourceMarkdown(view)) {
         return;
       }
       const lines = editor.getValue().split('\n');
@@ -157,9 +157,17 @@ export default class NoteRefactor extends Plugin {
     console.log("Unloading Note Refactor plugin");
   }
 
+  isSourceMarkdown(view?: MarkdownView): boolean {
+    if (!view || !view.editor) {
+      return false;
+    }
+    const mode = typeof view.getMode === 'function' ? view.getMode() : undefined;
+    return mode !== 'preview';
+  }
+
   editModeGuard(command: () => any): void {
     const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
-    if(!mdView || mdView.getMode() !== 'source') {
+    if(!this.isSourceMarkdown(mdView)) {
       new Notification('Please use Note Refactor plugin in edit mode');
       return;
     } else {
