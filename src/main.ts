@@ -3,9 +3,10 @@ import {
   Plugin,
   Vault, 
   DataAdapter,
-  SuggestModal,
   getLinkpath,
-  Editor
+  Editor,
+  Menu,
+  Notice
 } from 'obsidian';
 import MomentDateRegex from './moment-date-regex';
 import { NoteRefactorSettingsTab } from './settings-tab';
@@ -15,6 +16,7 @@ import ObsidianFile from './obsidian-file';
 import NRDoc, { ReplaceMode } from './doc';
 import NoteRefactorModal from './note-modal';
 import ModalNoteCreation from './modal-note-creation';
+import { findHeadingSection } from './heading-extract';
 
 export default class NoteRefactor extends Plugin {
   settings: NoteRefactorSettings;
@@ -95,6 +97,59 @@ export default class NoteRefactor extends Plugin {
       callback: () => this.editModeGuard(() => this.splitOnHeading(3)),
     });
 
+    this.addCommand({
+      id: 'app:extract-heading',
+      name: 'Extract heading',
+      checkCallback: (checking: boolean) => {
+        const mdView = this.app.workspace.activeLeaf?.view as MarkdownView;
+        if (!this.isSourceMarkdown(mdView)) {
+          return false;
+        }
+        const lines = mdView.editor.getValue().split('\n');
+        const section = findHeadingSection(lines, mdView.editor.getCursor().line);
+        if (!section) {
+          return false;
+        }
+        if (!checking) {
+          void this.extractHeading();
+        }
+        return true;
+      },
+    });
+
+    this.registerEvent(this.app.workspace.on('editor-menu', (menu: Menu, editor: Editor, view: MarkdownView) => {
+      if (!this.isSourceMarkdown(view)) {
+        return;
+      }
+      const lines = editor.getValue().split('\n');
+      const section = findHeadingSection(lines, editor.getCursor().line);
+      if (!section) {
+        return;
+      }
+      menu.addItem((item) => {
+        item
+          .setTitle('Extract heading')
+          .setIcon('scissors')
+          .onClick(() => {
+            void this.extractHeading();
+          });
+      });
+      menu.addItem((item) => {
+        item
+          .setTitle('Place extract link at parent heading bottom')
+          .setChecked(this.settings.extractHeadingLinkAtParentBottom)
+          .onClick(async () => {
+            this.settings.extractHeadingLinkAtParentBottom = !this.settings.extractHeadingLinkAtParentBottom;
+            await this.saveData(this.settings);
+            new Notice(
+              this.settings.extractHeadingLinkAtParentBottom
+                ? 'Extract heading: link goes at the bottom of the parent heading'
+                : 'Extract heading: link replaces the heading in place'
+            );
+          });
+      });
+    }));
+
     this.addSettingTab(new NoteRefactorSettingsTab(this.app, this));
   }
 
@@ -102,9 +157,17 @@ export default class NoteRefactor extends Plugin {
     console.log("Unloading Note Refactor plugin");
   }
 
+  isSourceMarkdown(view?: MarkdownView): boolean {
+    if (!view || !view.editor) {
+      return false;
+    }
+    const mode = typeof view.getMode === 'function' ? view.getMode() : undefined;
+    return mode !== 'preview';
+  }
+
   editModeGuard(command: () => any): void {
     const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
-    if(!mdView || mdView.getMode() !== 'source') {
+    if(!this.isSourceMarkdown(mdView)) {
       new Notification('Please use Note Refactor plugin in edit mode');
       return;
     } else {
@@ -118,6 +181,29 @@ export default class NoteRefactor extends Plugin {
       const headingNotes = this.NRDoc.contentSplitByHeading(doc, headingLevel);
       const dedupedFileNames = this.file.ensureUniqueFileNames(headingNotes);
       headingNotes.forEach((hn, i) => this.createNoteWithFirstLineAsFileName(dedupedFileNames[i], hn, mdView, doc, 'replace-headings', true));
+  }
+
+  async extractHeading(): Promise<void> {
+    const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
+    const doc = mdView.editor;
+    if (!mdView) { return }
+
+    const lines = doc.getValue().split('\n');
+    const section = findHeadingSection(lines, doc.getCursor().line);
+    if (!section) {
+      new Notice('Place the cursor in a heading to extract it');
+      return;
+    }
+    const extractedLines = lines.slice(section.startLine, section.endLine);
+
+    await this.createNoteWithFirstLineAsFileName(
+      extractedLines[0],
+      extractedLines,
+      mdView,
+      doc,
+      'extract-heading',
+      false
+    );
   }
 
   async extractSelectionFirstLine(mode: ReplaceMode): Promise<void> {
