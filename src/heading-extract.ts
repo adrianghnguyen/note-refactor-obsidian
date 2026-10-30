@@ -80,7 +80,8 @@ export function findParentHeading(lines: string[], section: HeadingSection): Par
 
 function insertLink(lines: string[], index: number, link: string): void {
   const insert: string[] = [];
-  if (index > 0 && lines[index - 1] !== '') {
+  const prev = index > 0 ? lines[index - 1] : '';
+  if (prev !== '' && headingLevel(prev) === 0) {
     insert.push('');
   }
   insert.push(link);
@@ -106,10 +107,8 @@ export function applyExtractHeadingLink(
   const remaining = lines.slice(0, section.startLine).concat(lines.slice(section.endLine));
   let insertAt = section.startLine;
   if (parent) {
-    insertAt = parent.endLine;
-    if (parent.endLine > section.startLine) {
-      insertAt -= section.endLine - section.startLine;
-    }
+    /* Directly under the parent heading; remaining sibling headings stay below. */
+    insertAt = parent.headingLine + 1;
   }
   insertLink(remaining, insertAt, link);
   return { nextText: remaining.join('\n'), extractedLines };

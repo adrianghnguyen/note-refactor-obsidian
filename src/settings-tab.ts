@@ -172,9 +172,9 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
         }));
 
     const extractHeadingHelp = document.createDocumentFragment();
-    extractHeadingHelp.appendText('When extracting a heading, put the new wikilink at the bottom of the heading one level above the extracted one.');
+    extractHeadingHelp.appendText('When extracting a heading, put the new wikilink directly under the parent heading (the heading one level above). Remaining sibling headings stay below the link.');
     extractHeadingHelp.appendChild(document.createElement('br'));
-    extractHeadingHelp.appendText('H3 goes to the bottom of its parent H2. H2 goes to the bottom of its parent H1.');
+    extractHeadingHelp.appendText('Example: H1 > H2 > H3 sibling, H3 target becomes H1 > H2 > [[target]] > H3 sibling. The link is under H2, not under H1.');
     extractHeadingHelp.appendChild(document.createElement('br'));
     extractHeadingHelp.appendText('Turn this off to replace the heading in place, like Obsidian’s Extract this heading.');
     extractHeadingHelp.appendChild(document.createElement('br'));

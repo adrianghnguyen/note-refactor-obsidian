@@ -4,7 +4,7 @@
 
 ### Added
 
-- **Extract heading** command and editor right-click items. With **Place extract-heading link at parent bottom** on (default), the new wikilink is inserted at the bottom of the parent heading (H3 → end of its H2; H2 → end of its H1). Turn the option off, including from the context menu, to replace the heading in place like Obsidian’s Extract this heading. Settings describe this in the tab, not only on hover.
+- **Extract heading** command and editor right-click items. With **Place extract-heading link at parent bottom** on (default), the new wikilink is inserted directly under the parent heading (H3 → under its H2, before remaining H3 siblings; H2 → under its H1). Turn the option off, including from the context menu, to replace the heading in place like Obsidian’s Extract this heading. Settings describe this in the tab, not only on hover.
 
 ## 1.9.0-beta.1
 

@@ -76,7 +76,7 @@ This command copies the selected text into the content of a new note using the f
 
 This command extracts the heading under the cursor (and its nested content) into a new note.
 
-With **Place extract-heading link at parent bottom** enabled (default), the wikilink is inserted at the bottom of the heading one level above: an H3 link goes to the end of its parent H2, an H2 link to the end of its parent H1. Right-click the editor to run **Extract heading** or toggle **Place extract link at parent heading bottom**. Turn the option off to replace the heading in place, like Obsidian’s **Extract this heading**.
+With **Place extract-heading link at parent bottom** enabled (default), the wikilink is inserted directly under the parent heading: an H3 link goes under its H2 (remaining H3 siblings stay below the link), an H2 link under its H1. Right-click the editor to run **Extract heading** or toggle **Place extract link at parent heading bottom**. Turn the option off to replace the heading in place, like Obsidian’s **Extract this heading**.
 
 #### Extract selection to new note or append to existing note - content only
 

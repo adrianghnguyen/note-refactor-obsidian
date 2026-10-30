@@ -65,35 +65,52 @@ describe('findParentHeading', () => {
 });
 
 describe('applyExtractHeadingLink', () => {
-  it('places the H3 wikilink at the bottom of the parent H2', () => {
+  it('places the last H3 wikilink directly under its parent H2, before remaining sibling H3s', () => {
+    const source = [
+      '# H1',
+      '## H2',
+      '### H3 not target',
+      '### H3 this is target',
+    ].join('\n');
+    const result = applyExtractHeadingLink(source, 3, '[[H3 this is target]]', true);
+    expect(result?.nextText).toBe([
+      '# H1',
+      '## H2',
+      '[[H3 this is target]]',
+      '',
+      '### H3 not target',
+    ].join('\n'));
+  });
+
+  it('places the H3 wikilink under the parent H2, not at the end of H1', () => {
     const result = applyExtractHeadingLink(SAMPLE, 6, '[[H3 Extract me]]', true);
     expect(result?.nextText).toBe([
       '# H1 Title',
       'h1 intro',
       '',
       '## H2 Parent',
+      '[[H3 Extract me]]',
+      '',
       'h2 intro',
       '',
       '### H3 sibling',
       'sibling body',
-      '',
-      '[[H3 Extract me]]',
       '',
       '## H2 other',
       'other body',
     ].join('\n'));
   });
 
-  it('places the H2 wikilink at the bottom of the parent H1', () => {
+  it('places the H2 wikilink directly under its parent H1, before remaining H2 siblings', () => {
     const result = applyExtractHeadingLink(SAMPLE, 3, '[[H2 Parent]]', true);
     expect(result?.nextText).toBe([
       '# H1 Title',
+      '[[H2 Parent]]',
+      '',
       'h1 intro',
       '',
       '## H2 other',
       'other body',
-      '',
-      '[[H2 Parent]]',
     ].join('\n'));
   });
 
