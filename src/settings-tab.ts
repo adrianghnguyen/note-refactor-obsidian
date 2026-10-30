@@ -170,6 +170,24 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
           this.plugin.settings.normalizeHeaderLevels = value;
           this.plugin.saveData(this.plugin.settings);
         }));
+
+    const extractHeadingHelp = document.createDocumentFragment();
+    extractHeadingHelp.appendText('When extracting a heading, put the new wikilink at the bottom of the heading one level above the extracted one.');
+    extractHeadingHelp.appendChild(document.createElement('br'));
+    extractHeadingHelp.appendText('H3 goes to the bottom of its parent H2. H2 goes to the bottom of its parent H1.');
+    extractHeadingHelp.appendChild(document.createElement('br'));
+    extractHeadingHelp.appendText('Turn this off to replace the heading in place, like Obsidian’s Extract this heading.');
+    extractHeadingHelp.appendChild(document.createElement('br'));
+    extractHeadingHelp.appendText('You can also toggle this from the editor right-click menu when the cursor is in a heading.');
+
+    new Setting(containerEl)
+      .setName('Place extract-heading link at parent bottom')
+      .setDesc(extractHeadingHelp)
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.extractHeadingLinkAtParentBottom)
+        .onChange((value) => {
+          this.plugin.settings.extractHeadingLinkAtParentBottom = value;
+          this.plugin.saveData(this.plugin.settings);
+        }));
   }
 
   private tempalteDescriptionContent(introText: string): DocumentFragment {
