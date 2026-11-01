@@ -13,6 +13,7 @@ export class NoteRefactorSettings {
     noteLinkTemplate: string = '';
     refactoredNoteTemplate: string = '';
     normalizeHeaderLevels: boolean = false;
+    extractHeadingLinkAtParentBottom: boolean = true;
   }
   
 export enum Location {

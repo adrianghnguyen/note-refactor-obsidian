@@ -27,4 +27,8 @@ describe("Note Refactor Settings defaults", () => {
     it("Lowercase new note titles is off by default", () => {
         expect(settings.lowercaseNewNoteTitle).toBeFalsy();
     });
+
+    it("Place extract-heading link at parent bottom is on by default", () => {
+        expect(settings.extractHeadingLinkAtParentBottom).toBeTruthy();
+    });
 });

@@ -1,9 +1,10 @@
 import { Editor, FileManager, TFile, Vault } from 'obsidian';
 import { HEADING_REGEX } from './constants';
+import { applyExtractHeadingLink } from './heading-extract';
 import MomentDateRegex from './moment-date-regex';
 import { NotePlaceholders } from './placeholder';
 import { NoteRefactorSettings } from './settings';
-export type ReplaceMode = 'split' | 'replace-selection' | 'replace-headings';
+export type ReplaceMode = 'split' | 'replace-selection' | 'replace-headings' | 'extract-heading';
 
 export default class NRDoc {
     private settings: NoteRefactorSettings;
@@ -40,6 +41,16 @@ export default class NRDoc {
             doc.replaceSelection(contentToInsert);
         } else if(mode === 'replace-headings'){
           doc.setValue(doc.getValue().replace(originalContent, contentToInsert));
+        } else if(mode === 'extract-heading'){
+          const next = applyExtractHeadingLink(
+            doc.getValue(),
+            doc.getCursor().line,
+            contentToInsert,
+            this.settings.extractHeadingLinkAtParentBottom
+          );
+          if (next) {
+            doc.setValue(next.nextText);
+          }
         }
     }
 

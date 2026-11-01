@@ -72,6 +72,12 @@ Extracting the current selection into a new note or append to an existing one.
 This command copies the selected text into the content of a new note using the first line as the file name for the new note or append to an existing one.
 ![first line file name demo](https://raw.githubusercontent.com/lynchjames/note-refactor-obsidian/master/images/Note-Refactor-Demo-First-Line-as-File-Name.gif)
 
+#### Extract heading
+
+This command extracts the heading under the cursor (and its nested content) into a new note.
+
+With **Place extract-heading link at parent bottom** enabled (default), the wikilink is inserted directly under the parent heading: an H3 link goes under its H2 (remaining H3 siblings stay below the link), an H2 link under its H1. Right-click the editor to run **Extract heading** or toggle **Place extract link at parent heading bottom**. Turn the option off to replace the heading in place, like Obsidian’s **Extract this heading**.
+
 #### Extract selection to new note or append to existing note - content only
 
 This command only copies the selected text into the content of a new note or append to an existing one. The user is prompted to enter a file name for the new note.
