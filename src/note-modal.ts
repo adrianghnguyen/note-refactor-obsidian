@@ -1,5 +1,6 @@
 import { App, FuzzyMatch, FuzzySuggestModal, MarkdownView, SuggestModal, TFile } from 'obsidian';
 import ModalNoteCreation from './modal-note-creation';
+import { destinationNotesForExtract } from './heading-extract';
 const EMPTY_TEXT = 'No files found to append content. Enter to create a new one.'
 const PLACEHOLDER_TEXT = 'Type file to append to or create';
 const instructions = [
@@ -8,6 +9,11 @@ const instructions = [
     {command: 'esc', purpose: 'to dismiss'}
 ];
 
+export interface NoteRefactorModalOptions {
+    existingOnly?: boolean;
+    excludePath?: string;
+}
+
 export default class NoteRefactorModal extends FuzzySuggestModal<TFile>{
     modalNoteCreation: ModalNoteCreation;
     files: TFile[];
@@ -15,21 +21,39 @@ export default class NoteRefactorModal extends FuzzySuggestModal<TFile>{
     suggestionEmpty: HTMLDivElement;
     obsFile: any;
     noSuggestion: boolean;
+    existingOnly: boolean;
 
-    constructor(app: App, modalNoteCreation: ModalNoteCreation) {
+    constructor(app: App, modalNoteCreation: ModalNoteCreation, options?: NoteRefactorModalOptions) {
         super(app);
         this.modalNoteCreation = modalNoteCreation;
-        this.init();
+        this.existingOnly = options?.existingOnly ?? false;
+        this.init(options?.excludePath);
     }
 
-    init() {
+    init(excludePath?: string) {
         this.files = this.app.vault.getMarkdownFiles();
-        this.emptyStateText = EMPTY_TEXT;
-        this.setPlaceholder(PLACEHOLDER_TEXT);
-        this.setInstructions(instructions);
+        if (excludePath) {
+            this.files = destinationNotesForExtract(this.files, excludePath);
+        }
+        this.emptyStateText = this.existingOnly
+            ? 'No matching notes. Choose an existing note to append the heading.'
+            : EMPTY_TEXT;
+        this.setPlaceholder(this.existingOnly
+            ? 'Choose an existing note to extract into'
+            : PLACEHOLDER_TEXT);
+        this.setInstructions(this.existingOnly
+            ? [
+                {command: '↑↓', purpose: 'to navigate'},
+                {command: '↵', purpose: 'to append heading to note'},
+                {command: 'esc', purpose: 'to dismiss'}
+            ]
+            : instructions);
     }
 
     getItems(): TFile[] {
+        if (this.existingOnly) {
+            return this.files;
+        }
         const inputName = this.inputEl.value;
         if(inputName.length == 0 || this.files.filter(f => this.isMatch(f.path, inputName + '.md')).length > 0){
             return this.files;

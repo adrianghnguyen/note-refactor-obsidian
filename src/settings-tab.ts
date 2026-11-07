@@ -178,6 +178,8 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
     extractHeadingHelp.appendChild(document.createElement('br'));
     extractHeadingHelp.appendText('Turn this off to replace the heading in place, like Obsidian’s Extract this heading.');
     extractHeadingHelp.appendChild(document.createElement('br'));
+    extractHeadingHelp.appendText('Extract heading still creates a new note named from the heading. Extract heading to existing note opens a note picker and appends the heading there instead. Both commands use this link placement.');
+    extractHeadingHelp.appendChild(document.createElement('br'));
     extractHeadingHelp.appendText('You can also toggle this from the editor right-click menu when the cursor is in a heading.');
 
     new Setting(containerEl)
