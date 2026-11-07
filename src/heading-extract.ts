@@ -113,3 +113,17 @@ export function applyExtractHeadingLink(
   insertLink(remaining, insertAt, link);
   return { nextText: remaining.join('\n'), extractedLines };
 }
+
+export function destinationNotesForExtract<T extends { path: string }>(
+  files: T[],
+  sourcePath: string
+): T[] {
+  return files.filter((file) => file.path !== sourcePath);
+}
+
+export function joinAppendedNoteContent(existing: string, extracted: string): string {
+  if (!existing || existing.length === 0) {
+    return extracted;
+  }
+  return existing.replace(/\s*$/, '') + '\n\n' + extracted;
+}

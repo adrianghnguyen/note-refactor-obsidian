@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Extract heading to existing note** command and editor right-click item. Pick a destination note; the heading is appended there and the source gets a wikilink using the same parent-bottom vs in-place rule as Extract heading. Extract heading still creates a new file.
+
 ## 1.9.0
 
 ### Added

@@ -117,6 +117,26 @@ export default class NoteRefactor extends Plugin {
       },
     });
 
+    this.addCommand({
+      id: 'app:extract-heading-to-existing-note',
+      name: 'Extract heading to existing note',
+      checkCallback: (checking: boolean) => {
+        const mdView = this.app.workspace.activeLeaf?.view as MarkdownView;
+        if (!this.isSourceMarkdown(mdView)) {
+          return false;
+        }
+        const lines = mdView.editor.getValue().split('\n');
+        const section = findHeadingSection(lines, mdView.editor.getCursor().line);
+        if (!section) {
+          return false;
+        }
+        if (!checking) {
+          void this.extractHeadingToExistingNote();
+        }
+        return true;
+      },
+    });
+
     this.registerEvent(this.app.workspace.on('editor-menu', (menu: Menu, editor: Editor, view: MarkdownView) => {
       if (!this.isSourceMarkdown(view)) {
         return;
@@ -132,6 +152,14 @@ export default class NoteRefactor extends Plugin {
           .setIcon('scissors')
           .onClick(() => {
             void this.extractHeading();
+          });
+      });
+      menu.addItem((item) => {
+        item
+          .setTitle('Extract heading to existing note')
+          .setIcon('file-plus')
+          .onClick(() => {
+            void this.extractHeadingToExistingNote();
           });
       });
       menu.addItem((item) => {
@@ -204,6 +232,26 @@ export default class NoteRefactor extends Plugin {
       'extract-heading',
       false
     );
+  }
+
+  async extractHeadingToExistingNote(): Promise<void> {
+    const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
+    const doc = mdView.editor;
+    if (!mdView) { return }
+
+    const lines = doc.getValue().split('\n');
+    const section = findHeadingSection(lines, doc.getCursor().line);
+    if (!section) {
+      new Notice('Place the cursor in a heading to extract it');
+      return;
+    }
+    const extractedLines = lines.slice(section.startLine, section.endLine);
+    const note = this.NRDoc.noteContent(extractedLines[0], extractedLines.slice(1));
+    const modalCreation = new ModalNoteCreation(this.app, this.settings, this.NRDoc, this.file, this.obsFile, note, doc, 'extract-heading');
+    new NoteRefactorModal(this.app, modalCreation, {
+      existingOnly: true,
+      excludePath: mdView.file?.path,
+    }).open();
   }
 
   async extractSelectionFirstLine(mode: ReplaceMode): Promise<void> {

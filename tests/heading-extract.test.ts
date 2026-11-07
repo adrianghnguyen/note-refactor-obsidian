@@ -1,8 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   applyExtractHeadingLink,
+  destinationNotesForExtract,
   findHeadingSection,
   findParentHeading,
+  joinAppendedNoteContent,
 } from '../src/heading-extract';
 
 const SAMPLE = [
@@ -131,5 +133,38 @@ describe('applyExtractHeadingLink', () => {
       '## H2 other',
       'other body',
     ].join('\n'));
+  });
+
+  it('places a link to an existing destination note, not a new file named after the heading', () => {
+    const result = applyExtractHeadingLink(SAMPLE, 6, '[[Inbox]]', true);
+    expect(result?.nextText).toContain('[[Inbox]]');
+    expect(result?.nextText).not.toContain('### H3 Extract me');
+    expect(result?.extractedLines[0]).toBe('### H3 Extract me');
+  });
+});
+
+describe('destinationNotesForExtract', () => {
+  it('keeps other markdown notes and drops the source note', () => {
+    const notes = destinationNotesForExtract(
+      [
+        { path: 'Source.md' },
+        { path: 'Inbox.md' },
+        { path: 'Projects/Plan.md' },
+      ],
+      'Source.md'
+    );
+    expect(notes.map((n) => n.path)).toEqual(['Inbox.md', 'Projects/Plan.md']);
+  });
+});
+
+describe('joinAppendedNoteContent', () => {
+  it('appends extracted heading content after existing note body with a blank line', () => {
+    expect(joinAppendedNoteContent('Inbox body\n', '### H3 Extract me\nh3 body')).toBe(
+      'Inbox body\n\n### H3 Extract me\nh3 body'
+    );
+  });
+
+  it('writes only the extracted content when the destination is empty', () => {
+    expect(joinAppendedNoteContent('', '### H3 Extract me')).toBe('### H3 Extract me');
   });
 });
