@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **Extract heading to existing note** appends only the heading and its content. The **Refactored note template** (including YAML frontmatter) still applies when **Extract heading** creates a new note, and is not pasted into an existing destination.
+
 ## 1.10.0
 
 ### Added

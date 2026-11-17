@@ -1,10 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   applyExtractHeadingLink,
+  contentForExtractHeadingDestination,
   destinationNotesForExtract,
   findHeadingSection,
   findParentHeading,
   joinAppendedNoteContent,
+  stripYamlFrontmatter,
 } from '../src/heading-extract';
 
 const SAMPLE = [
@@ -166,5 +168,74 @@ describe('joinAppendedNoteContent', () => {
 
   it('writes only the extracted content when the destination is empty', () => {
     expect(joinAppendedNoteContent('', '### H3 Extract me')).toBe('### H3 Extract me');
+  });
+
+  it('keeps destination YAML and appends the heading after the existing body', () => {
+    const existing = [
+      '---',
+      'id: inbox-note',
+      'corpus: sandbox',
+      '---',
+      '',
+      'Inbox body',
+    ].join('\n');
+    expect(joinAppendedNoteContent(existing, '### H3 Extract me\nh3 body')).toBe(
+      [
+        '---',
+        'id: inbox-note',
+        'corpus: sandbox',
+        '---',
+        '',
+        'Inbox body',
+        '',
+        '### H3 Extract me',
+        'h3 body',
+      ].join('\n')
+    );
+  });
+});
+
+const HEADING_BODY = '### H3 Extract me\nh3 body';
+const YAML_TEMPLATE = [
+  '---',
+  'title: H3 Extract me',
+  'source: "[[Source]]"',
+  '---',
+  '',
+  HEADING_BODY,
+].join('\n');
+
+describe('stripYamlFrontmatter', () => {
+  it('removes a leading YAML block and leaves the heading body', () => {
+    expect(stripYamlFrontmatter(YAML_TEMPLATE)).toBe(HEADING_BODY);
+  });
+
+  it('leaves heading content unchanged when there is no frontmatter', () => {
+    expect(stripYamlFrontmatter(HEADING_BODY)).toBe(HEADING_BODY);
+  });
+
+  it('does not strip a markdown rule that is not file-level frontmatter', () => {
+    const body = '### H3 Extract me\n\n---\n\nnot yaml';
+    expect(stripYamlFrontmatter(body)).toBe(body);
+  });
+});
+
+describe('contentForExtractHeadingDestination', () => {
+  it('keeps template YAML when extract-heading creates a new note', () => {
+    expect(contentForExtractHeadingDestination(HEADING_BODY, 'new-note', YAML_TEMPLATE)).toBe(
+      YAML_TEMPLATE
+    );
+  });
+
+  it('writes only the heading and its content when the destination already exists', () => {
+    expect(
+      contentForExtractHeadingDestination(HEADING_BODY, 'existing-note', YAML_TEMPLATE)
+    ).toBe(HEADING_BODY);
+  });
+
+  it('strips YAML if the extracted payload itself starts with frontmatter', () => {
+    expect(
+      contentForExtractHeadingDestination(YAML_TEMPLATE, 'existing-note', YAML_TEMPLATE)
+    ).toBe(HEADING_BODY);
   });
 });

@@ -3,7 +3,7 @@ import NRFile from './file';
 import { App, Editor, getLinkpath, MarkdownView, TFile } from 'obsidian';
 import ObsidianFile from './obsidian-file';
 import { NoteRefactorSettings } from './settings';
-import { joinAppendedNoteContent } from './heading-extract';
+import { contentForExtractHeadingDestination, joinAppendedNoteContent } from './heading-extract';
 
 export default class ModalNoteCreation {
     app: App;
@@ -41,10 +41,12 @@ export default class ModalNoteCreation {
 
       async append(file: TFile, existingContent?: string) {
         const { currentView, currentFile } = this.getCurrentFile();
-        const templatedContent = await this.templatedContent(this.content, currentFile, file.path, file.basename);
+        const destContent = this.mode === 'extract-heading'
+          ? contentForExtractHeadingDestination(this.content, 'existing-note', this.content)
+          : await this.templatedContent(this.content, currentFile, file.path, file.basename);
         existingContent = existingContent ?? await this.app.vault.read(file);
-        await this.app.vault.modify(file, joinAppendedNoteContent(existingContent, templatedContent));
-        await this.doc.replaceContent(file.basename, file.path, this.editor, currentFile, templatedContent, this.content, this.mode);
+        await this.app.vault.modify(file, joinAppendedNoteContent(existingContent, destContent));
+        await this.doc.replaceContent(file.basename, file.path, this.editor, currentFile, destContent, this.content, this.mode);
         if(this.settings.openNewNote){
           this.app.workspace.openLinkText(file.basename, getLinkpath(file.path), true);
         }

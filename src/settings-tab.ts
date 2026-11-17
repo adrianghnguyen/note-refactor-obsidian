@@ -105,7 +105,7 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Refactored note template')
-      .setDesc(this.tempalteDescriptionContent('The template used to generate the content for the refactored note.'))
+      .setDesc(this.tempalteDescriptionContent('The template used when creating a new refactored note, including YAML frontmatter if you put it here. Extract heading to an existing note appends only the heading and its content — this template is not applied, so dest notes do not get a second frontmatter block.'))
       .addTextArea((text) => {
         text
           .setPlaceholder('Example:\n\n{{new_note_content}}\n\n---\nLink to original note: {{link}}')
@@ -178,7 +178,7 @@ export class NoteRefactorSettingsTab extends PluginSettingTab {
     extractHeadingHelp.appendChild(document.createElement('br'));
     extractHeadingHelp.appendText('Turn this off to replace the heading in place, like Obsidian’s Extract this heading.');
     extractHeadingHelp.appendChild(document.createElement('br'));
-    extractHeadingHelp.appendText('Extract heading still creates a new note named from the heading. Extract heading to existing note opens a note picker and appends the heading there instead. Both commands use this link placement.');
+    extractHeadingHelp.appendText('Extract heading still creates a new note named from the heading (the refactored note template, including frontmatter, still applies). Extract heading to existing note opens a note picker and appends only the heading and its content — no extra YAML. Both commands use this link placement.');
     extractHeadingHelp.appendChild(document.createElement('br'));
     extractHeadingHelp.appendText('You can also toggle this from the editor right-click menu when the cursor is in a heading.');
 
