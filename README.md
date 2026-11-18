@@ -74,7 +74,9 @@ This command copies the selected text into the content of a new note using the f
 
 #### Extract heading
 
-This command extracts the heading under the cursor (and its nested content) into a new note.
+This command extracts the heading under the cursor (and its nested content) into a new note. The **Refactored note template** still applies on that new file, so YAML frontmatter you configured there is kept.
+
+**Extract heading to existing note** appends only the heading and its content to the chosen note. Dest frontmatter is left as-is; the template is not applied, so no extra YAML is pasted into the dest body.
 
 With **Place extract-heading link at parent bottom** enabled (default), the wikilink is inserted directly under the parent heading: an H3 link goes under its H2 (remaining H3 siblings stay below the link), an H2 link under its H1. Right-click the editor to run **Extract heading** or toggle **Place extract link at parent heading bottom**. Turn the option off to replace the heading in place, like Obsidian’s **Extract this heading**.
 

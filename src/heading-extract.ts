@@ -127,3 +127,33 @@ export function joinAppendedNoteContent(existing: string, extracted: string): st
   }
   return existing.replace(/\s*$/, '') + '\n\n' + extracted;
 }
+
+export type ExtractHeadingDestination = 'new-note' | 'existing-note';
+
+export function stripYamlFrontmatter(text: string): string {
+  const lines = text.split('\n');
+  if (lines.length < 2 || lines[0].trim() !== '---') {
+    return text;
+  }
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      const rest = lines.slice(i + 1);
+      if (rest[0] === '') {
+        rest.shift();
+      }
+      return rest.join('\n');
+    }
+  }
+  return text;
+}
+
+export function contentForExtractHeadingDestination(
+  extractedHeadingContent: string,
+  destination: ExtractHeadingDestination,
+  templatedContent: string
+): string {
+  if (destination === 'existing-note') {
+    return stripYamlFrontmatter(extractedHeadingContent);
+  }
+  return templatedContent;
+}

@@ -6,7 +6,8 @@ import {
   getLinkpath,
   Editor,
   Menu,
-  Notice
+  Notice,
+  TFile
 } from 'obsidian';
 import MomentDateRegex from './moment-date-regex';
 import { NoteRefactorSettingsTab } from './settings-tab';
@@ -235,23 +236,39 @@ export default class NoteRefactor extends Plugin {
   }
 
   async extractHeadingToExistingNote(): Promise<void> {
+    const modalCreation = this.extractHeadingModalCreation();
+    if (!modalCreation) {
+      return;
+    }
+    const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
+    new NoteRefactorModal(this.app, modalCreation, {
+      existingOnly: true,
+      excludePath: mdView.file?.path,
+    }).open();
+  }
+
+  async extractHeadingToFile(file: TFile): Promise<void> {
+    const modalCreation = this.extractHeadingModalCreation();
+    if (!modalCreation) {
+      return;
+    }
+    await modalCreation.append(file);
+  }
+
+  private extractHeadingModalCreation(): ModalNoteCreation | null {
     const mdView = this.app.workspace.activeLeaf.view as MarkdownView;
     const doc = mdView.editor;
-    if (!mdView) { return }
+    if (!mdView) { return null; }
 
     const lines = doc.getValue().split('\n');
     const section = findHeadingSection(lines, doc.getCursor().line);
     if (!section) {
       new Notice('Place the cursor in a heading to extract it');
-      return;
+      return null;
     }
     const extractedLines = lines.slice(section.startLine, section.endLine);
     const note = this.NRDoc.noteContent(extractedLines[0], extractedLines.slice(1));
-    const modalCreation = new ModalNoteCreation(this.app, this.settings, this.NRDoc, this.file, this.obsFile, note, doc, 'extract-heading');
-    new NoteRefactorModal(this.app, modalCreation, {
-      existingOnly: true,
-      excludePath: mdView.file?.path,
-    }).open();
+    return new ModalNoteCreation(this.app, this.settings, this.NRDoc, this.file, this.obsFile, note, doc, 'extract-heading');
   }
 
   async extractSelectionFirstLine(mode: ReplaceMode): Promise<void> {
